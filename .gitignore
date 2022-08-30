@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+Demography_GerDistrMortConv.Rproj
+results/*
+.DS_Store
+raw_data/*
+temp_data/*
