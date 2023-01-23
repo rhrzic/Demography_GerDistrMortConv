@@ -6,6 +6,7 @@ require(cowplot)
 require(directlabels)
 require(grid)
 require(remotes)
+require(Cairo)
 
 #remotes::install_github("coolbutuseless/ggpattern")
 require(ggpattern)
@@ -74,17 +75,22 @@ p4 <- ggplot(map_e0_district_convergence)+
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
         panel.background = element_rect(fill = "transparent"),
-        legend.position = 'top') +
+        legend.position = 'top',
+        strip.text = element_text(face = 'bold')) +
   facet_grid(. ~ str_to_title(sex))+
   scale_pattern_fill_manual(values =c('Increasing disadvantage'='darkred', 'Decreasing disadvantage'='lightcoral',
                              'Decreasing advantage'='lightskyblue', 'Increasing advantage' = 'navyblue'), name = '')+
   scale_pattern_color_manual(values =c('Increasing disadvantage'='darkred', 'Decreasing disadvantage'='lightcoral',
                                        'Decreasing advantage'='lightskyblue', 'Increasing advantage' = 'navyblue'), name = '')+
   scale_pattern_manual(values = c('Increasing disadvantage'='stripe', 'Decreasing disadvantage'='stripe',
-                                  'Decreasing advantage'='circle', 'Increasing advantage' = 'circle'), name = '')+
-  ggtitle(expression(paste('German district ', e[0], ' trajectory groups 1997-2016, by sex')))
+                                  'Decreasing advantage'='circle', 'Increasing advantage' = 'circle'), name = '')
 
 ggsave("figures/p4.png", p4, width = 250, height = 180, unit = 'mm', dpi = 600)
+
+ggsave("figures/p4.pdf", p4, width = 250, height = 180, unit = 'mm', family = 'Arial', device = cairo_pdf)
+
+ggsave("figures/p4.eps", p4, width = 250, height = 180, unit = 'mm', device = 'eps')
+
 
 
 ## Explaining the scenarios
@@ -99,20 +105,21 @@ scenarios <- data.frame(scenario = c(rep("Decreasing disadvantage",4), rep("Decr
                                                 'Increasing disadvantage', 'Increasing advantage')))
 
 p1 = ggplot(scenarios, aes(x = time, y = value, linetype = Unit))+
-  geom_line(show.legend = F, size = 1.5)+
+  geom_line(show.legend = F, linewidth = 1.5)+
   geom_text(aes(label = annotation, angle = angle, x = 0.01, y = (value+0.04)), hjust = 'left')+
   facet_wrap(. ~ scenario, nrow = 1)+
-  xlab("Time in years")+
-  ylab("Life expectancy at birth")+
+  xlab("Time (in years)")+
+  ylab("Life Expectancy at Birth")+
   theme(panel.border = element_rect(colour = 'black', fill = NA),
       panel.grid.major = element_line(color = 'transparent'),
-     axis.text.x=element_blank(),
-     axis.ticks.x=element_blank(),
-     axis.text.y=element_blank(),
-     axis.ticks.y=element_blank(),
-     panel.background = element_rect(fill = 'transparent'),
-      text = element_text(size = 12))+
-  ggtitle(expression(paste('District ', e[0], ' trajectory groups')))
+      axis.text.x=element_blank(),
+      axis.ticks.x=element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks.y=element_blank(),
+      panel.background = element_rect(fill = 'transparent'),
+      text = element_text(size = 12),
+      axis.title = element_text(face = 'bold'),
+      strip.text = element_text(face = 'bold'))
 
 
 ggsave("figures/p1.png", p1, width = 250, height = 150, unit = 'mm', dpi = 600)

@@ -29,8 +29,8 @@ mortality %>%
 require(HMDHFDplus)
 require(MortalitySmooth)
 
-myusername <- "rok.hrzic@gmail.com"
-mypassword <- "VmwyCJiKwVu9n4u"
+myusername <- #Insert your username
+mypassword <- #Insert your password
 
 expos <- HMDHFDplus::readHMDweb(
   CNTRY="DEUTNP",

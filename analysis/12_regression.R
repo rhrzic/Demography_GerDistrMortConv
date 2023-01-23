@@ -8,6 +8,7 @@ require(sf)
 require(cowplot)
 require(scales)
 require(flextable)
+require(Cairo)
 
 kreise <- st_read("raw_data/vg2500/vg2500_krs.shp")
 
@@ -286,17 +287,19 @@ ggplot(aes(y = estimate, ymin = conf.low, ymax = conf.high, x = term))+
   scale_y_continuous(breaks = c(0, 0.25, 0.5, 1, 2, 4), labels = c('0', '0.25', '0.5', '1', '2', '4'), trans = 'log')+
   facet_grid(sex ~ y.level)+
   xlab(NULL)+
-  ylab('Odds ratio')+
+  ylab('Odds Ratio')+
   coord_flip()+
   theme_bw()+
   theme(text = element_text(size = 11),
         legend.title = element_blank(),
-        legend.position = 'top')+
-  ggtitle(expression(paste('Association of district ',e[0],' trajectories with district characteristics')))
+        legend.position = 'top',
+        axis.title = element_text(face = 'bold', color = 'black'),
+        strip.text = element_text(face = 'bold'),
+        axis.text = element_text(color = 'black'))
 
 ggsave("figures/p5.png", p5, width = 250, height = 190, unit = 'mm')
 
-ggsave("figures/p5.pdf", p5, width = 250, height = 190, unit = 'mm', device = 'pdf')
+ggsave("figures/p5.pdf", p5, width = 250, height = 190, unit = 'mm',family = 'Arial', device = cairo_pdf)
 
 
 

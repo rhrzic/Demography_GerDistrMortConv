@@ -7,6 +7,7 @@ require(scales)
 require(Hmisc)
 require(RcppRoll)
 require(flextable)
+require(Cairo)
 
 source("analysis/var_decomp.R")
 
@@ -109,36 +110,41 @@ beta_models_table = beta_models_table %>%
   pivot_wider(names_from = year, values_from = result)
 
 
+e0_diff$year_lab = e0_diff$year
+levels(e0_diff$year_lab) = c('1997\u20132016', '1997\u20132006', '2007\u20132016')
+
+
 a <- ggplot(filter(e0_diff, east != 'Berlin' & year == '1997-2006'), aes(x = e0, y = e0_diff))+
   geom_point(aes(color = east, shape = east), alpha = 0.3, show.legend = F)+
   geom_smooth(aes(group = interaction(sex, east), color = east), method = "lm", se = F, show.legend = F)+
-#  geom_smooth(aes(group = sex), color = 'black', method = "lm", se = F, show.legend = F)+
   geom_dl(aes(label = str_to_title(sex)), method = 'smart.grid')+
-  geom_text(aes(x = 71.7, y = 4.7, label = 'East'), color = '#F8766D')+
-#  geom_text(aes(x = 71.1, y = 3.6, label = 'Both'), color = 'black')+
-  geom_text(aes(x = 72.3, y = 2.5, label = 'West'), color = '#00BFC4')+
-  xlab(expression(paste('Starting ', e[0])))+
-  ylab(expression(paste("Change in ", e[0])))+
+  geom_text(aes(x = 71.7, y = 4.7, label = 'Eastern'), color = '#F8766D')+
+  geom_text(aes(x = 72.3, y = 2.5, label = 'Western'), color = '#00BFC4')+
+  xlab(expression(paste(bold('Starting '), bolditalic(e[0]))))+
+  ylab(expression(paste(bold("Change in "), bolditalic(e[0]))))+
   theme_bw()+
   theme(legend.position = c(.85, .80),
         legend.title = element_blank(),
-        text = element_text(size = 11))+
+        text = element_text(size = 11),
+        axis.title = element_text(face = 'bold'),
+        strip.text = element_text(face = 'bold'))+
   guides(shape = guide_legend(override.aes = list(alpha = 1)))+
-  facet_wrap(year ~ .)
+  facet_wrap(year_lab ~ .)
 
 b <- ggplot(filter(e0_diff, east != 'Berlin' & year == '2007-2016'), aes(x = e0, y = e0_diff))+
   geom_point(aes(color = east, shape = east), alpha = 0.3, show.legend = F)+
   geom_smooth(aes(group = interaction(sex, east), color = east), method = "lm", se = F, show.legend = F)+
-#  geom_smooth(aes(group = sex), color = 'black', method = "lm", se = F, show.legend = F)+
   geom_dl(aes(label = str_to_title(sex)), method = 'smart.grid')+
-  xlab(expression(paste('Starting ', e[0])))+
-  ylab(expression(paste("Change in ", e[0])))+
+  xlab(expression(paste(bold('Starting '), bolditalic(e[0]))))+
+  ylab(expression(paste(bold("Change in "), bolditalic(e[0]))))+
   theme_bw()+
   theme(legend.position = c(.85, .80),
         legend.title = element_blank(),
-        text = element_text(size = 11))+
+        text = element_text(size = 11),
+        axis.title = element_text(face = 'bold'),
+        strip.text = element_text(face = 'bold'))+
   guides(shape = guide_legend(override.aes = list(alpha = 1)))+
-  facet_wrap(year ~ .)
+  facet_wrap(year_lab ~ .)
 
 ## Sigma convergence
 
@@ -160,9 +166,11 @@ c <- ggplot(filter(e0_var, sex == 'male'), aes(x = year, y = variance, group = c
   geom_dl(aes(label = str_to_title(component)), method = 'smart.grid')+
   ylim(c(0,1))+
   xlab("Year")+
-  ylab(expression(paste("Variance of ", e[0])))+
+  ylab(expression(paste(bold("Variance of "), bolditalic(e[0]))))+
   theme_bw()+
-  theme(text = element_text(size = 12))+
+  theme(text = element_text(size = 12),
+        axis.title = element_text(face = 'bold'),
+        strip.text = element_text(face = 'bold'))+
   facet_wrap(. ~ str_to_title(sex))
 
 d <- ggplot(filter(e0_var, sex =='female'), aes(x = year, y = variance, group = component, color = component, shape = component))+
@@ -172,23 +180,20 @@ d <- ggplot(filter(e0_var, sex =='female'), aes(x = year, y = variance, group = 
   geom_dl(aes(label = str_to_title(component)), method = 'smart.grid')+
   ylim(c(0,1))+
   xlab("Year")+
-  ylab(expression(paste("Variance of ", e[0])))+
+  ylab(expression(paste(bold("Variance of "), bolditalic(e[0]))))+
   theme_bw()+
-  theme(text = element_text(size = 12))+
+  theme(text = element_text(size = 12),
+        axis.title = element_text(face = 'bold'),
+        strip.text = element_text(face = 'bold'))+
   facet_wrap(. ~ str_to_title(sex))
 
-title = ggdraw()+
-  draw_label('Convergence in district life expectancy in Germany 1997-2016, by sex and decade',
-              hjust = 0.5)
+set_null_device("png")
 
 p3 <- plot_grid(a,b,c, d, ncol = 2, nrow = 2, align = "hv", axis = "tblr", labels = c('a', 'b', 'c', 'd'))
 
-p3_title = plot_grid(title, p3, nrow = 2, align = 'hv', axis = 'tblr', rel_heights = c(0.1, 1))
+ggsave("figures/p3.png", p3, width = 190, height = 200, unit = 'mm')
 
-
-ggsave("figures/p3.png", p3_title, width = 190, height = 190, unit = 'mm')
-
-ggsave("figures/p3.pdf", p3_title, width = 190, height = 190, unit = 'mm', device = 'pdf')
+ggsave("figures/p3.pdf", p3, width = 190, height = 200, unit = 'mm', family = 'Arial', device = cairo_pdf)
 
 
 e0_var_east = e0 %>%

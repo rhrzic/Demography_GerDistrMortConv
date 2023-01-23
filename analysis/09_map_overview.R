@@ -5,6 +5,7 @@ require(viridis)
 require(sf)
 require(cowplot)
 require(gridExtra)
+require(Cairo)
 
 #How big are the confidence intervals?
 
@@ -14,19 +15,17 @@ e0 <- readRDS("temp_data/e0.rds") %>%
 e0_ranges = e0 %>%
   mutate(e0_range = e0_high - e0_low)
 
-histogram(e0_ranges$e0_range)
-
 min(e0_ranges$e0_range)
 max(e0_ranges$e0_range)
 
-supp_fig1 = ggplot(filter(e0_ranges, east != 'Berlin'), aes(x = year, y = e0_range, group = year))+
+figA1 = ggplot(filter(e0_ranges, east != 'Berlin'), aes(x = year, y = e0_range, group = year))+
   geom_boxplot()+
   facet_grid(east ~ str_to_title(sex))+
   xlab('Year')+
   ylab('Size of the 95% confidence interval')+
   theme_bw()
 
-ggsave('figures/supp_fig1.png', supp_fig1)
+ggsave('figures/figA1.png', figA1)
 
 ggplot(filter(e0_ranges, east != 'Berlin'), aes(x = year, y = e0, group = year))+
   geom_boxplot()+
@@ -53,7 +52,7 @@ e0_ranges_plot = e0_ranges %>%
             high_range=mean(e0_range)+1.96*sd,
             range_e0 = high_range-low_range)
 
-supp_p2 = ggplot()+
+figA2 = ggplot()+
   geom_point(data = e0_distr, aes(x = year, y = range_e0, group = year, color = 'Median estimate'))+
   geom_point(data =e0_ranges_plot, aes(x = year, y = range_e0, group = year, color = 'Uncertainty around\nmedian estimate'))+
   facet_grid(. ~ str_to_title(sex))+
@@ -63,7 +62,7 @@ supp_p2 = ggplot()+
   labs(color = '')+
   theme(legend.position = 'top')
 
-ggsave('figures/supp_p2.png', supp_p2)
+ggsave('figures/figA2.png', figA2)
   
 
 kreise <- st_read("raw_data/vg2500/vg2500_krs.shp")
@@ -113,10 +112,9 @@ a1 = ggplot(filter(e0_map, sex == "male", year == 1997))+
         axis.ticks.y=element_blank(),
         panel.background = element_rect(fill = "transparent"),
         plot.subtitle = element_text(hjust = 0.5)) +
-  #scale_fill_gradient2(midpoint = mean(filter(map_df, sex == "male" & year == 1997)$e0))+
     scale_fill_viridis_c()+
     guides(fill = guide_colorbar('',barwidth = 1, barheight = 6))+
-  labs(subtitle = expression(paste("Male ", e[0], " in 1997")))
+  labs(subtitle = expression(bold(paste("Male ", bolditalic(e[0]), " in 1997"))))
 
 a2 = ggplot(filter(e0_map, sex == "male", year == 2016))+
   geom_sf(aes(fill = e0, geometry = geometry), color = NA, size = 0.01) +
@@ -128,10 +126,9 @@ a2 = ggplot(filter(e0_map, sex == "male", year == 2016))+
         axis.ticks.y=element_blank(),
         panel.background = element_rect(fill = "transparent"),
         plot.subtitle = element_text(hjust = 0.5)) +
-  #scale_fill_gradient2(midpoint = mean(filter(map_df, sex == "male" & year == 1997)$e0))+
   scale_fill_viridis_c()+
   guides(fill = guide_colorbar('',barwidth = 1, barheight = 6))+
-  labs(subtitle = expression(paste("Male ", e[0], " in 2016")))
+  labs(subtitle = expression(bold(paste("Male ", bolditalic(e[0]), " in 2016"))))
 
 
 a3 = ggplot(filter(e0_map_diff, sex == "male" & year == '1997-2016'))+
@@ -144,10 +141,9 @@ a3 = ggplot(filter(e0_map_diff, sex == "male" & year == '1997-2016'))+
         axis.ticks.y=element_blank(),
         panel.background = element_rect(fill = "transparent"),
         plot.subtitle = element_text(hjust = 0.5)) +
-  #scale_fill_gradient2(midpoint = mean(filter(map_df, sex == "male" & year == 1997)$e0))+
   scale_fill_viridis_c()+
   guides(fill = guide_colorbar('',barwidth = 1, barheight = 6))+
-  labs(subtitle = expression(paste("Change in male ", e[0], ' 1997-2016')))
+  labs(subtitle = expression(bold(paste("Change in male ", bolditalic(e[0]), " 1997\u20132016"))))
 
 b1 = ggplot(filter(e0_map, sex == "female" & year == 1997))+
   geom_sf(aes(fill = e0, geometry = geometry), color = NA, size = 0.01) +
@@ -162,7 +158,7 @@ b1 = ggplot(filter(e0_map, sex == "female" & year == 1997))+
   #scale_fill_gradient2(midpoint = mean(filter(map_df, sex == "male" & year == 1997)$e0))+
   scale_fill_viridis_c()+
   guides(fill = guide_colorbar('',barwidth = 1, barheight = 6))+
-  labs(subtitle = expression(paste("Female ", e[0], " in 1997")))
+  labs(subtitle = expression(bold(paste("Female ", bolditalic(e[0]), " in 1997"))))
 
 b2 = ggplot(filter(e0_map, sex == "female" & year == 2016))+
   geom_sf(aes(fill = e0, geometry = geometry), color = NA, size = 0.01) +
@@ -177,7 +173,7 @@ b2 = ggplot(filter(e0_map, sex == "female" & year == 2016))+
   #scale_fill_gradient2(midpoint = mean(filter(map_df, sex == "male" & year == 1997)$e0))+
   scale_fill_viridis_c()+
   guides(fill = guide_colorbar('',barwidth = 1, barheight = 6))+
-  labs(subtitle = expression(paste("Female ", e[0], " in 2016")))
+  labs(subtitle = expression(bold(paste("Female ", bolditalic(e[0]), " in 2016"))))
 
 
 b3 = ggplot(filter(e0_map_diff, sex == "female" & year == '1997-2006'))+
@@ -193,18 +189,23 @@ b3 = ggplot(filter(e0_map_diff, sex == "female" & year == '1997-2006'))+
   #scale_fill_gradient2(midpoint = mean(filter(map_df, sex == "male" & year == 1997)$e0))+
   scale_fill_viridis_c()+
   guides(fill = guide_colorbar('',barwidth = 1, barheight = 6))+
-  labs(subtitle = expression(paste("Change in female ", e[0], " 1997-2016")))
+  labs(subtitle = expression(bold(paste("Change in female ", bolditalic(e[0]), " 1997\u20132016"))))
 
+
+
+Cairo::CairoFonts(    # for some reason I seem to need the `pkgname::` format
+  regular="Arial:style=Regular",
+  bold="Arial:style=Bold",
+  italic="Arial:style=Italic",
+  bolditalic="Arial:style=Bold Italic, BoldItalic",
+  symbol="Symbol"
+)
 
 p2 <- plot_grid(a1,a2,a3,b1,b2,b3, ncol = 3, nrow = 2, align = "hv", axis = "tblr")
 
 ggsave("figures/p2.png", p2, width = 250, height = 190, unit = 'mm')
 
-dev.off()
-
-ggsave("figures/p2.pdf", p2, width = 250, height = 190, unit = 'mm', device = 'pdf')
-
-
+ggsave("figures/p2.pdf", p2, width = 250, height = 190, unit = 'mm', family = 'Arial', device = cairo_pdf)
 
 
 ## Alternative outcome
