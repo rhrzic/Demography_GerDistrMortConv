@@ -3,8 +3,7 @@
 .RData
 .Ruserdata
 Demography_GerDistrMortConv.Rproj
-results/*
 .DS_Store
-temp_data/*
 analysis/00e_HMD_login.R
 analysis/01_divconvillustration.R
+results/result*
