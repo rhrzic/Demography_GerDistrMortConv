@@ -5,8 +5,8 @@ rm(list=ls())
 require(HMDHFDplus)
 require(MortalitySmooth)
 
-myusername <- "rok.hrzic@gmail.com"
-mypassword <- "VmwyCJiKwVu9n4u"
+source("00e_HMD_login.R")
+#This is a file containing the username and password for HMD
 
 expos <- HMDHFDplus::readHMDweb(
   CNTRY="DEUTNP",
